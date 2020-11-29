@@ -9,7 +9,6 @@ import numpy as np
 # Recebe um estado, um caracter e o dicionário de transições
 # Retorna uma lista dos estados alcançados pelo estado t
 def move(T, c, transitions_dictionary):
-  # print(T, 'MOVE')
   stack = []
   if (type(T) == list or type(T) == tuple):
     stack = [*T]
@@ -17,7 +16,6 @@ def move(T, c, transitions_dictionary):
     stack = [T]
   states = []
   while(stack != []):
-    # print(stack, 'MOVE STACK')
     state = stack.pop()
     if ((state, c) in transitions_dictionary):
       appendStates = transitions_dictionary[(state, c)]
@@ -76,24 +74,17 @@ def convertAutomata(Q, E, transitions, q0, F):
   transitions_dictionary = getTransitionsDictionary(transitions)
   d_table = []
   s0 = eClosure([*q0], Q, transitions_dictionary)
-  print(s0, 'S0')
   states = [tuple([*s0])]
   marked = []
   F_ = []
   while(marked != states):
-    print(states, 'STATES')
-    print(marked, 'MARKED')
     T = getUnmarkedState(marked, states)
     marked = [*marked, T]
     for c in E:
       T_MOVE = move(T, c, transitions_dictionary)
       T_ = eClosure(T_MOVE, Q, transitions_dictionary)
-      print(T, 'T')
-      print(T_MOVE, 'T_MOVE')
-      print(T_, 'T_')
       if T_ not in states and T_ != ():
         states = [*states, tuple(T_)]
-        print(states)
       transition = [T, c, T_]
       d_table.append(transition)
   for state in states:
@@ -120,7 +111,6 @@ def getTransitions(transitions_csv):
         new_state = int(state)
         destiny_states.append(new_state)
     data = [origin_state, character, destiny_states]
-    print(data, 'data')
     transitions.append(data)
 
   return transitions
