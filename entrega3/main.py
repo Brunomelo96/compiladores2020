@@ -1,3 +1,5 @@
+import pandas as pd
+import numpy as np
 # Q = Conjunto de estados
 # E = Alfabeto
 # transitions = Vetor de transições do tipo (estado inicial, caracter, estado final)
@@ -101,18 +103,62 @@ def convertAutomata(Q, E, transitions, q0, F):
 
   return tuple([states, E, d_table, s0, F_])
 
-      
 
-Q = [0, 1, 2, 3, 4]
-E = ['a', 'b']
-q0 = [0]
-transitions = [
-  [0, None, [1]],
-  [1, 'b', [2]],
-  [1, None, [4]],
-  [2, 'b', [3]],
-]
-F = [3]
+def writeCSV(data, path):
+  pd.DataFrame(data).to_csv(path, header=False, index=False)
 
-dfa = convertAutomata(Q, E, transitions, q0, F)
-print(dfa, 'dfa')
+def getTransitions(transitions_csv):
+  transitions = []
+  for transition in transitions_csv:
+    origin_state = int(transition[0])
+    character = None
+    if transition[1] != 'None':
+      character = transition[1]
+    destiny_states = []
+    destiny_transitions = transition[2].split(',')
+    for state in destiny_transitions:
+        new_state = int(state)
+        destiny_states.append(new_state)
+    data = [origin_state, character, destiny_states]
+    print(data, 'data')
+    transitions.append(data)
+
+  return transitions
+
+def getAlphabet():
+  # E = [
+  #   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'ç',
+  #   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'Ç',
+  #   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+  #   '_', '-', '\'', '"',
+  #   ' ', '\t', '\n',
+  #   '=', '-', '*', '+', '/',
+  #   ':', '>', '<',
+  #   ',', ';', '(', ')', '{', '}', '[', ']',
+  #   'digito',
+  #   'letra',
+  #   'outro ^ [letra digito]',
+  #   'outro ^ [None . digito]',
+  #   'outro ^ [None digito]',
+  #   'outro ^ [" " \t \n]',
+  #   'outro ^ [= >]',
+  # ]
+  E = ['a', 'b']
+
+  return E
+
+def getNFAFromCSV(transitionsCSV):
+  states = np.arange(0, 11)
+  transitions_df = pd.read_csv(transitionsCSV, delimiter=',', header=None)
+  transitions_data = transitions_df.values
+  transitions = getTransitions(transitions_data)
+  initial_state = [0]
+  E = getAlphabet()
+  F = [10]
+
+  return (states, E, transitions, initial_state, F)      
+
+nfa = getNFAFromCSV('teste_transicoes.csv')
+dfa = convertAutomata(nfa[0], nfa[1], nfa[2], nfa[3], nfa[4])
+dfa_transitions = dfa[2]
+writeCSV(dfa_transitions, 'transitions.data')
